@@ -13,11 +13,15 @@ class GTestConan(ConanFile):
     options = {"shared": [True, False], "cygwin_msvc": [True, False],
                "no_gmock": [True, False], "no_main": [True, False], "fpic": [True, False]}
     default_options = ("shared=True", "cygwin_msvc=False", "no_gmock=False",
-                       "no_main=False", "fpic=False")
+                       "no_main=False", "fpic=True")
     exports = "CMakeLists.txt"
     url="http://github.com/bincrafters/conan-gtest"
     license="https://github.com/google/googletest/blob/master/googletest/LICENSE"
     description = "Google's C++ test framework"
+
+    def configure(self):
+        if self.settings.os == "Windows":
+            self.options.remove("fPIC")
     
     def source(self):
         zip_name = "release-%s.zip" % self.version
@@ -33,7 +37,8 @@ class GTestConan(ConanFile):
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
         cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
-        cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fpic
+        if self.settings.os != "Windows":
+            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fpic
         cmake.definitions["BUILD_GTEST"] = self.options.no_gmock
         cmake.definitions["BUILD_GMOCK"] = not self.options.no_gmock
         cmake.configure()
