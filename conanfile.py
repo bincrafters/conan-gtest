@@ -12,16 +12,9 @@ class GTestConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False]}
     default_options = "shared=True"
-    exports = "CMakeLists.txt"
+    exports = ["CMakeLists.txt", "LICENSE"]
     url="http://github.com/lasote/conan-gtest"
     license="https://github.com/google/googletest/blob/master/googletest/LICENSE"
-    
-    def config_options(self):
-        if self.settings.compiler != "Visual Studio":
-            try:  # It might have already been removed if required by more than 1 package
-                del self.options.include_pdbs
-            except:
-                pass
     
     def source(self):
         zip_name = "release-%s.zip" % self.version
@@ -30,7 +23,6 @@ class GTestConan(ConanFile):
         unzip(zip_name)
         os.unlink(zip_name)
         os.rename("googletest-release-%s" % self.version, self.sources_folder)
-
 
     def build(self):
         cmake = CMake(self)
@@ -50,6 +42,9 @@ class GTestConan(ConanFile):
         self.copy(pattern="*.so*", dst="lib", src=".", keep_path=False)
         self.copy(pattern="*.dylib*", dst="lib", src=".", keep_path=False)      
         self.copy(pattern="*.pdb", dst="lib", src=".", keep_path=False)
+
+        # Copying the license
+        self.copy("LICENSE*", dst="licenses",  ignore_case=True, keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ['gtest', 'gtest_main']
