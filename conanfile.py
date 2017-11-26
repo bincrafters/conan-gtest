@@ -22,6 +22,7 @@ class GTestConan(ConanFile):
         download(url, zip_name)
         unzip(zip_name)
         os.unlink(zip_name)
+        
         os.rename("googletest-release-%s" % self.version, self.sources_folder)
 
     def build(self):
