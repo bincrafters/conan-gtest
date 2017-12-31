@@ -2,9 +2,11 @@
 [![Build Status](https://travis-ci.org/bincrafters/conan-gtest.svg?branch=stable%2F1.8.0)](https://travis-ci.org/bincrafters/conan-gtest)
 [![Build status](https://ci.appveyor.com/api/projects/status/sxs9n6vb8nqa92l5?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-gtest)
 
-[Conan.io](https://conan.io) package for [gtest](https://github.com/google/googletest) project
+[Conan.io](https://conan.io) package for [gtest](https://github.com/google/googletest).
 
-The packages generated with this **conanfile** can be found in [Bintray](https://bintray.com/bincrafters/public-conan/gtest%3Abincrafters).
+Google's C++ test framework
+
+The packages generated with this **conanfile** can be found on [Bintray](https://bintray.com/bincrafters/public-conan/gtest%3Abincrafters).
 
 ## For Users: Use this package
 
@@ -38,6 +40,14 @@ The following command both runs all the steps of the conan file, and publishes t
 
     $ conan create bincrafters/stable
 
+
+### Available Options
+| Option        | Default | Possible Values  |
+| ------------- |:----------------- |:------------:|
+| shared      | True |  [True, False] |
+| fpic      | True |  [True, False] |
+| build_gmock      | False |  [True, False] |
+
 ## Add Remote
 
     $ conan remote add bincrafters "https://api.bintray.com/conan/bincrafters/public-conan"
@@ -46,5 +56,10 @@ The following command both runs all the steps of the conan file, and publishes t
 
     $ conan upload gtest/1.8.0@bincrafters/stable --all -r bincrafters
 
-## License
-[BSD 3-Clause](https://github.com/google/googletest/blob/master/googletest/LICENSE)
+
+## Conan Recipe License
+
+NOTE: The conan recipe license applies only to the files of this recipe, which can be used to build and package gtest.
+It does *not* in any way apply or is related to the actual software being packaged.
+
+[MIT](https://github.com/bincrafters/conan-gtest/blob/testing/1.8.0/LICENSE.md)
