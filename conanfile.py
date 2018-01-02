@@ -1,20 +1,24 @@
-from conans import ConanFile
-import os
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from conans import ConanFile, CMake
 from conans.tools import download, unzip, replace_in_file
-from conans import CMake
+import os
+
 
 class GTestConan(ConanFile):
     name = "gtest"
     version = "1.8.0"
-    sources_folder = "sources"
+    description = "Google's C++ test framework"
+    url="http://github.com/bincrafters/conan-gtest"
+    license="BSD 3-Clause"
+    exports = ["LICENSE.md"]
+    exports_sources = ["CMakeLists.txt"]
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "build_gmock": [True, False], "fpic": [True, False]}
     default_options = ("shared=True", "build_gmock=False", "fpic=True")
-    exports = "CMakeLists.txt"
-    url="http://github.com/bincrafters/conan-gtest"
-    license="https://github.com/google/googletest/blob/master/googletest/LICENSE"
-    description = "Google's C++ test framework"
+    sources_folder = "sources"
 
     def configure(self):
         if self.settings.os == "Windows":
