@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from conans import ConanFile, CMake
-from conans.tools import download, unzip, replace_in_file
+from conans import ConanFile, CMake, tools
 import os
 
 
@@ -10,38 +9,38 @@ class GTestConan(ConanFile):
     name = "gtest"
     version = "1.8.0"
     description = "Google's C++ test framework"
-    url="http://github.com/bincrafters/conan-gtest"
-    license="BSD 3-Clause"
+    url = "http://github.com/bincrafters/conan-gtest"
+    license = "BSD 3-Clause"
     exports = ["LICENSE.md"]
     exports_sources = ["CMakeLists.txt"]
+    source_subfolder = "source_subfolder"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "build_gmock": [True, False], "fpic": [True, False]}
     default_options = ("shared=True", "build_gmock=False", "fpic=True")
-    sources_folder = "sources"
 
     def configure(self):
         if self.settings.os == "Windows":
             self.options.remove("fPIC")
     
     def source(self):
-        zip_name = "release-%s.zip" % self.version
-        url = "https://github.com/google/googletest/archive/%s" % zip_name
-        download(url, zip_name)
-        unzip(zip_name)
-        os.unlink(zip_name)
-        
-        os.rename("googletest-release-%s" % self.version, self.sources_folder)
+        source_url =  "https://github.com/google/googletest"
+        tools.get("{0}/archive/release-{1}.tar.gz".format(source_url, self.version))
+        extracted_dir = "googletest-release-" + self.version
+        os.rename(extracted_dir, self.source_subfolder)
 
     def build(self):
         if self.settings.compiler == "Visual Studio" and self.settings.compiler.version == "15":
-            replace_in_file("%s/googletest/CMakeLists.txt" % self.sources_folder,
+            gtest_cmake_file = os.path.join(self.source_subfolder, "googletest", "CMakeLists.txt")
+            gmock_cmake_file = os.path.join(self.source_subfolder, "googlemock", "CMakeLists.txt")
+            
+            tools.replace_in_file(gtest_cmake_file,
                             'cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)',
                             '''
 string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
 cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
 ''')
-            replace_in_file("%s/googlemock/CMakeLists.txt" % self.sources_folder,
+            tools.replace_in_file(gmock_cmake_file,
                             '# a user aggressive about warnings.',
                             '''
 # a user aggressive about warnings.
@@ -59,13 +58,16 @@ string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
         cmake.build()
 
     def package(self):
-
+        
         # Copy the license files
-        self.copy("license*", src="%s/googletest" % self.sources_folder, dst=".", ignore_case=True, keep_path=False)
+        self.copy("LICENSE", dst="license", src=self.source_subfolder)
         # Copying headers
-        self.copy(pattern="*.h", dst="include", src="%s/googletest/include" % self.sources_folder, keep_path=True)
+        gtest_include_dir = os.path.join(self.source_subfolder, "googletest", "include")
+        gmock_include_dir = os.path.join(self.source_subfolder, "googlemock", "include")
+        
+        self.copy(pattern="*.h", dst="include", src=gtest_include_dir, keep_path=True)
         if self.options.build_gmock:
-            self.copy(pattern="*.h", dst="include", src="%s/googlemock/include" % self.sources_folder, keep_path=True)
+            self.copy(pattern="*.h", dst="include", src=gmock_include_dir, keep_path=True)
 
         # Copying static and dynamic libs
         self.copy(pattern="*.a", dst="lib", src=".", keep_path=False)

@@ -1,4 +1,6 @@
 project(cmake_wrapper)
+
 include(conanbuildinfo.cmake)
-CONAN_BASIC_SETUP()
-add_subdirectory(sources)
+conan_basic_setup()
+
+add_subdirectory("source_subfolder")
