@@ -60,7 +60,7 @@ string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
     def package(self):
         
         # Copy the license files
-        self.copy("LICENSE", dst="license", src=self.source_subfolder)
+        self.copy("LICENSE", dst="licenses", src=self.source_subfolder)
         # Copying headers
         gtest_include_dir = os.path.join(self.source_subfolder, "googletest", "include")
         gmock_include_dir = os.path.join(self.source_subfolder, "googlemock", "include")
