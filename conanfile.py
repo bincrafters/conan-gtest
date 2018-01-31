@@ -7,7 +7,7 @@ import os
 
 class GTestConan(ConanFile):
     name = "gtest"
-    version = "1.8.0"
+    version = "1.7.0"
     description = "Google's C++ test framework"
     url = "http://github.com/bincrafters/conan-gtest"
     license = "BSD 3-Clause"
@@ -16,8 +16,8 @@ class GTestConan(ConanFile):
     source_subfolder = "source_subfolder"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "build_gmock": [True, False], "fpic": [True, False]}
-    default_options = ("shared=True", "build_gmock=False", "fpic=True")
+    options = {"shared": [True, False]}
+    default_options = "shared=True"
 
     def configure(self):
         if self.settings.os == "Windows":
@@ -30,30 +30,9 @@ class GTestConan(ConanFile):
         os.rename(extracted_dir, self.source_subfolder)
 
     def build(self):
-        if self.settings.compiler == "Visual Studio" and self.settings.compiler.version == "15":
-            gtest_cmake_file = os.path.join(self.source_subfolder, "googletest", "CMakeLists.txt")
-            gmock_cmake_file = os.path.join(self.source_subfolder, "googlemock", "CMakeLists.txt")
-            
-            tools.replace_in_file(gtest_cmake_file,
-                            'cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)',
-                            '''
-string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
-cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
-''')
-            tools.replace_in_file(gmock_cmake_file,
-                            '# a user aggressive about warnings.',
-                            '''
-# a user aggressive about warnings.
-string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
-''')
         cmake = CMake(self)
-        if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
-            cmake.definitions["gtest_force_shared_crt"] = True
-        cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
-        if self.settings.os != "Windows":
-            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fpic
-        cmake.definitions["BUILD_GTEST"] = True
-        cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
+        cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
+        cmake.definitions['gtest_force_shared_crt'] = True
         cmake.configure()
         cmake.build()
 
@@ -62,12 +41,9 @@ string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
         # Copy the license files
         self.copy("LICENSE", dst="licenses", src=self.source_subfolder)
         # Copying headers
-        gtest_include_dir = os.path.join(self.source_subfolder, "googletest", "include")
-        gmock_include_dir = os.path.join(self.source_subfolder, "googlemock", "include")
+        gtest_include_dir = os.path.join(self.source_subfolder,"include")
         
         self.copy(pattern="*.h", dst="include", src=gtest_include_dir, keep_path=True)
-        if self.options.build_gmock:
-            self.copy(pattern="*.h", dst="include", src=gmock_include_dir, keep_path=True)
 
         # Copying static and dynamic libs
         self.copy(pattern="*.a", dst="lib", src=".", keep_path=False)
@@ -78,13 +54,7 @@ string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
         self.copy(pattern="*.pdb", dst="lib", src=".", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ['gtest']
-        if self.options.build_gmock:
-            self.cpp_info.libs.append('gmock')
-            self.cpp_info.libs.append('gmock_main')
-        else:
-            self.cpp_info.libs.append('gtest_main')
-            
+        self.cpp_info.libs = ['gtest', 'gtest_main']
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
         
