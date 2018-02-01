@@ -30,6 +30,13 @@ class GTestConan(ConanFile):
         os.rename(extracted_dir, self.source_subfolder)
 
     def build(self):
+        if self.settings.compiler == "Visual Studio" and self.settings.compiler.version == "15":
+            tools.replace_in_file(os.path.join(self.source_subfolder, "CMakeLists.txt"),
+                            '# aggressive about warnings.',
+                            '''
+# aggressive about warnings.
+string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
+''')
         cmake = CMake(self)
         cmake.definitions['BUILD_SHARED_LIBS'] = self.options.shared
         cmake.definitions['gtest_force_shared_crt'] = True
