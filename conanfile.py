@@ -24,7 +24,7 @@ class GTestConan(ConanFile):
             self.options.remove("fPIC")
     
     def source(self):
-        source_url =  "https://github.com/google/googletest"
+        source_url = "https://github.com/google/googletest"
         tools.get("{0}/archive/release-{1}.tar.gz".format(source_url, self.version))
         extracted_dir = "googletest-release-" + self.version
         os.rename(extracted_dir, self.source_subfolder)
@@ -35,14 +35,14 @@ class GTestConan(ConanFile):
             gmock_cmake_file = os.path.join(self.source_subfolder, "googlemock", "CMakeLists.txt")
             
             tools.replace_in_file(gtest_cmake_file,
-                            'cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)',
-                            '''
+                                  'cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)',
+                                  '''
 string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
 cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
 ''')
             tools.replace_in_file(gmock_cmake_file,
-                            '# a user aggressive about warnings.',
-                            '''
+                                  '# a user aggressive about warnings.',
+                                  '''
 # a user aggressive about warnings.
 string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
 ''')
