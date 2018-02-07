@@ -30,22 +30,6 @@ class GTestConan(ConanFile):
         os.rename(extracted_dir, self.source_subfolder)
 
     def build(self):
-        if self.settings.compiler == "Visual Studio" and self.settings.compiler.version == "15":
-            gtest_cmake_file = os.path.join(self.source_subfolder, "googletest", "CMakeLists.txt")
-            gmock_cmake_file = os.path.join(self.source_subfolder, "googlemock", "CMakeLists.txt")
-            
-            tools.replace_in_file(gtest_cmake_file,
-                            'cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)',
-                            '''
-string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
-cxx_library(gtest "${cxx_strict}" src/gtest-all.cc)
-''')
-            tools.replace_in_file(gmock_cmake_file,
-                            '# a user aggressive about warnings.',
-                            '''
-# a user aggressive about warnings.
-string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
-''')
         cmake = CMake(self)
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
@@ -92,3 +76,8 @@ string(REPLACE "-WX" "" cxx_strict ${cxx_strict})
             self.cpp_info.defines.append("GTEST_LINKED_AS_SHARED_LIBRARY=1")
             if self.settings.compiler == "Visual Studio" and self.settings.compiler.version == "11":
                 self.cpp_info.defines.append('_VARIADIC_MAX=10')
+
+        if self.settings.compiler == "Visual Studio" and float(str(self.settings.compiler.version)) >= 15:
+            self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
+            self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
+
