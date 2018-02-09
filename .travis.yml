@@ -5,9 +5,6 @@ linux: &linux
    python: "3.6"
    services:
      - docker
-osx: &osx
-   os: osx
-   language: generic
 matrix:
    include:
       - <<: *linux
@@ -31,7 +28,7 @@ matrix:
       - <<: *osx
         osx_image: xcode9
         env: CONAN_APPLE_CLANG_VERSIONS=9.0
-
+        
 install:
   - chmod +x .travis/install.sh
   - ./.travis/install.sh
