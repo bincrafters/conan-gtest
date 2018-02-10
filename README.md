@@ -1,7 +1,7 @@
 ## Package Status
 
-| Bintray | Appveyor | Travis | 
-|---------|-----------|--------|
+| Bintray | Windows | Linux & Mac | 
+|:--------:|:---------:|:-------------:|
 |[![Download](https://api.bintray.com/packages/bincrafters/public-conan/gtest%3Abincrafters/images/download.svg)](https://bintray.com/bincrafters/public-conan/gtest%3Abincrafters/_latestVersion)|[![Build status](https://ci.appveyor.com/api/projects/status/github/bincrafters/conan-gtest?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-gtest)|[![Build Status](https://travis-ci.org/bincrafters/conan-gtest.svg)](https://travis-ci.org/bincrafters/conan-gtest)|
 
 ## Conan.io Information
