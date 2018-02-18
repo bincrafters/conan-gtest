@@ -17,7 +17,7 @@ class GTestConan(ConanFile):
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "build_gmock": [True, False], "fpic": [True, False]}
-    default_options = ("shared=True", "build_gmock=False", "fpic=True")
+    default_options = ("shared=True", "build_gmock=True", "fpic=True")
 
     def configure(self):
         if self.settings.os == "Windows":
