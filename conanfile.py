@@ -16,8 +16,8 @@ class GTestConan(ConanFile):
     source_subfolder = "source_subfolder"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "build_gmock": [True, False], "fpic": [True, False]}
-    default_options = ("shared=False", "build_gmock=True", "fpic=True")
+    options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False]}
+    default_options = ("shared=False", "build_gmock=True", "fPIC=True")
 
     def configure(self):
         if self.settings.os == "Windows":
@@ -37,7 +37,7 @@ class GTestConan(ConanFile):
         cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
         cmake.definitions["GTEST_CREATE_SHARED_LIBRARY"] = self.options.shared
         if self.settings.os != "Windows":
-            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fpic
+            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fPIC
         cmake.definitions["BUILD_GTEST"] = True
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         cmake.configure()
