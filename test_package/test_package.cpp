@@ -25,6 +25,28 @@ string Salutation::greet(const string& name) {
 // In the test file
 #include <gtest/gtest.h>
 
+#ifdef WITH_GMOCK
+#include <gmock/gmock.h>
+
+class Example
+{
+public:
+    virtual void foo() = 0;
+};
+
+class MockExample : public Example
+{
+public:
+    MOCK_METHOD0(foo, void());
+};
+
+#endif
+
 TEST(SalutationTest, Static) {
+
+#ifdef WITH_GMOCK
+  MockExample m;
+#endif
+
   EXPECT_EQ(string("Hello World!"), Salutation::greet("World"));
 }

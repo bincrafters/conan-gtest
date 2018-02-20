@@ -8,6 +8,10 @@ conan_basic_setup()
 
 file(GLOB SOURCE_FILES *.cpp)
 
+if(WITH_GMOCK)
+    add_definitions("-DWITH_GMOCK")
+endif()
+
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
