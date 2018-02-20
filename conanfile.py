@@ -22,7 +22,7 @@ class GTestConan(ConanFile):
     def configure(self):
         if self.settings.os == "Windows":
             self.options.remove("fPIC")
-    
+
     def source(self):
         source_url = "https://github.com/google/googletest"
         tools.get("{0}/archive/release-{1}.tar.gz".format(source_url, self.version))
@@ -30,7 +30,7 @@ class GTestConan(ConanFile):
         os.rename(extracted_dir, self.source_subfolder)
 
     def build(self):
-        
+
         cmake = CMake(self)
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
@@ -43,13 +43,13 @@ class GTestConan(ConanFile):
         cmake.build()
 
     def package(self):
-        
+
         # Copy the license files
         self.copy("LICENSE", dst="licenses", src=self.source_subfolder)
         # Copying headers
         gtest_include_dir = os.path.join(self.source_subfolder, "googletest", "include")
         gmock_include_dir = os.path.join(self.source_subfolder, "googlemock", "include")
-        
+
         self.copy(pattern="*.h", dst="include", src=gtest_include_dir, keep_path=True)
         if self.options.build_gmock:
             self.copy(pattern="*.h", dst="include", src=gmock_include_dir, keep_path=True)
@@ -69,10 +69,10 @@ class GTestConan(ConanFile):
             self.cpp_info.libs.append('gmock_main')
         else:
             self.cpp_info.libs.append('gtest_main')
-            
+
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
-        
+
         if self.options.shared:
             self.cpp_info.defines.append("GTEST_LINKED_AS_SHARED_LIBRARY=1")
             if self.settings.compiler == "Visual Studio" and self.settings.compiler.version == "11":
