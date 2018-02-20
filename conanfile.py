@@ -12,7 +12,7 @@ class GTestConan(ConanFile):
     url = "http://github.com/bincrafters/conan-gtest"
     license = "BSD 3-Clause"
     exports = ["LICENSE.md"]
-    exports_sources = ["CMakeLists.txt"]
+    exports_sources = ["CMakeLists.txt", "1339.patch"]
     source_subfolder = "source_subfolder"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
@@ -28,6 +28,8 @@ class GTestConan(ConanFile):
         tools.get("{0}/archive/release-{1}.tar.gz".format(source_url, self.version))
         extracted_dir = "googletest-release-" + self.version
         os.rename(extracted_dir, self.source_subfolder)
+
+        tools.patch(base_path=self.source_subfolder, patch_file='1339.patch')
 
     def build(self):
 
