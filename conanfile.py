@@ -11,13 +11,14 @@ class GTestConan(ConanFile):
     description = "Google's C++ test framework"
     url = "http://github.com/bincrafters/conan-gtest"
     license = "BSD 3-Clause"
-    exports = ["LICENSE.md"]
+    exports = ["LICENSE.md", "FindGTest.cmake", "FindGMock.cmake"]
     exports_sources = ["CMakeLists.txt", "1339.patch"]
     source_subfolder = "source_subfolder"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False]}
     default_options = ("shared=False", "build_gmock=True", "fPIC=True")
+    
 
     def configure(self):
         if self.settings.os == "Windows":
@@ -47,6 +48,10 @@ class GTestConan(ConanFile):
 
     def package(self):
 
+        # Copy the cmake find module
+        self.copy("FindGTest.cmake", ".", ".")
+        self.copy("FindGMock.cmake", ".", ".")
+
         # Copy the license files
         self.copy("LICENSE", dst="licenses", src=self.source_subfolder)
         # Copying headers
@@ -63,7 +68,7 @@ class GTestConan(ConanFile):
         self.copy(pattern="*.dll", dst="bin", src=".", keep_path=False)
         self.copy(pattern="*.so*", dst="lib", src=".", keep_path=False)
         self.copy(pattern="*.dylib*", dst="lib", src=".", keep_path=False)
-        self.copy(pattern="*.pdb", dst="lib", src=".", keep_path=False)
+        self.copy(pattern="*.pdb", dst="bin", src=".", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ['gtest']
