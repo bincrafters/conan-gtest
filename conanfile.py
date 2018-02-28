@@ -18,7 +18,7 @@ class GTestConan(ConanFile):
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False]}
     default_options = ("shared=False", "build_gmock=True", "fPIC=True")
-    
+
 
     def configure(self):
         if self.settings.os == "Windows":
@@ -71,12 +71,10 @@ class GTestConan(ConanFile):
         self.copy(pattern="*.pdb", dst="bin", src=".", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ['gtest']
         if self.options.build_gmock:
-            self.cpp_info.libs.append('gmock')
-            self.cpp_info.libs.append('gmock_main')
+            self.cpp_info.libs = ['gmock_main', 'gmock', 'gtest']
         else:
-            self.cpp_info.libs.append('gtest_main')
+            self.cpp_info.libs = ['gtest_main', 'gtest']
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
