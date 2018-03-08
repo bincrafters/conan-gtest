@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from conans import ConanFile, CMake, tools
+import sys
+from conans import ConanFile, CMake, tools, conan
 import os
 
 
@@ -33,7 +33,6 @@ class GTestConan(ConanFile):
         tools.patch(base_path=self.source_subfolder, patch_file='1339.patch')
 
     def build(self):
-
         cmake = CMake(self)
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
@@ -43,11 +42,13 @@ class GTestConan(ConanFile):
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fPIC
         cmake.definitions["BUILD_GTEST"] = True
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
+        # It would be nice to use os.subsystem here but can we count on it being in the profile?
+        if self.settings.os == "Windows" and self.settings.compiler == "gcc":
+            cmake.definitions["gtest_disable_pthreads"] = True
         cmake.configure()
         cmake.build()
 
     def package(self):
-
         # Copy the cmake find module
         self.copy("FindGTest.cmake", ".", ".")
         self.copy("FindGMock.cmake", ".", ".")
@@ -88,3 +89,7 @@ class GTestConan(ConanFile):
             self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
             self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
 
+
+# For running in the debugger
+if __name__ == '__main__':
+    sys.exit(conan.run())
