@@ -88,8 +88,3 @@ class GTestConan(ConanFile):
         if self.settings.compiler == "Visual Studio" and float(str(self.settings.compiler.version)) >= 15:
             self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
             self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
-
-
-# For running in the debugger
-if __name__ == '__main__':
-    sys.exit(conan.run())
