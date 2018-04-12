@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-from conans import ConanFile, CMake, tools, conan
+from conans import ConanFile, CMake, tools
 import os
 
 
@@ -36,13 +35,10 @@ class GTestConan(ConanFile):
         cmake = CMake(self)
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
-        cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
-        cmake.definitions["GTEST_CREATE_SHARED_LIBRARY"] = self.options.shared
         if self.settings.os != "Windows":
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fPIC
         cmake.definitions["BUILD_GTEST"] = True
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
-        # It would be nice to use os.subsystem here but can we count on it being in the profile?
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["gtest_disable_pthreads"] = True
         cmake.configure()
