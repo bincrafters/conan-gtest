@@ -1,0 +1,13 @@
+diff --git a/googletest/include/gtest/internal/gtest-port.h b/googletest/include/gtest/internal/gtest-port.h
+index 0094ed5..c21946c 100644
+--- a/googletest/include/gtest/internal/gtest-port.h
++++ b/googletest/include/gtest/internal/gtest-port.h
+@@ -813,7 +813,7 @@ using ::std::tuple_size;
+ // value-parameterized tests are enabled.  The implementation doesn't
+ // work on Sun Studio since it doesn't understand templated conversion
+ // operators.
+-#if GTEST_HAS_PARAM_TEST && GTEST_HAS_TR1_TUPLE && !defined(__SUNPRO_CC)
++#if (GTEST_HAS_TR1_TUPLE || GTEST_HAS_STD_TUPLE_) && !defined(__SUNPRO_CC)
+ # define GTEST_HAS_COMBINE 1
+ #endif
+ 
