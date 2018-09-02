@@ -85,6 +85,7 @@ class GTestConan(ConanFile):
             if float(str(self.settings.compiler.version)) >= 15:
                 self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
                 self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
-            elif float(str(self.settings.compiler.version)) <= 12:
-                self.cpp_info.defines.append("GTEST_USE_OWN_TR1_TUPLE=1")
+            elif float(str(self.settings.compiler.version)) == 12:
+                self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
+                self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
 
