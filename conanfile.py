@@ -78,13 +78,11 @@ class GTestConan(ConanFile):
 
         if self.options.shared:
             self.cpp_info.defines.append("GTEST_LINKED_AS_SHARED_LIBRARY=1")
-            if self.settings.compiler == "Visual Studio" and self.settings.compiler.version == "11":
+            if self.settings.compiler == "Visual Studio" and float(self.settings.compiler.version.value) <= 12:
                 self.cpp_info.defines.append('_VARIADIC_MAX=10')
 
         if self.settings.compiler == "Visual Studio":
             if float(str(self.settings.compiler.version)) >= 15:
                 self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
-                self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
-            elif float(str(self.settings.compiler.version)) == 12:
                 self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
 
