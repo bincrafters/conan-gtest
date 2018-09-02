@@ -6,12 +6,14 @@ import os
 
 class GTestConan(ConanFile):
     name = "gtest"
-    version = "1.8.0"
+    version = "1.8.1"
     description = "Google's C++ test framework"
     url = "http://github.com/bincrafters/conan-gtest"
+    homepage = "https://github.com/google/googletest"
+    author = "Bincrafters <bincrafters@gmail.com>"
     license = "BSD 3-Clause"
     exports = ["LICENSE.md"]
-    exports_sources = ["CMakeLists.txt", "*.patch", "FindGTest.cmake", "FindGMock.cmake"]
+    exports_sources = ["CMakeLists.txt", "FindGTest.cmake", "FindGMock.cmake"]
     source_subfolder = "source_subfolder"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
@@ -24,21 +26,14 @@ class GTestConan(ConanFile):
             self.options.remove("fPIC")
 
     def source(self):
-        source_url = "https://github.com/google/googletest"
-        tools.get("{0}/archive/release-{1}.tar.gz".format(source_url, self.version))
+        tools.get("{0}/archive/release-{1}.tar.gz".format(self.homepage, self.version))
         extracted_dir = "googletest-release-" + self.version
         os.rename(extracted_dir, self.source_subfolder)
-
-        tools.patch(base_path=self.source_subfolder, patch_file='1339.patch')
-        tools.patch(base_path=self.source_subfolder, patch_file='hasCombine.patch')
 
     def build(self):
         cmake = CMake(self)
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
-        if self.settings.os != "Windows":
-            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = self.options.fPIC
-        cmake.definitions["BUILD_GTEST"] = True
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["gtest_disable_pthreads"] = True
