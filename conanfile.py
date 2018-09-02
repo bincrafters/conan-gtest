@@ -37,6 +37,9 @@ class GTestConan(ConanFile):
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["gtest_disable_pthreads"] = True
+        if self.settings.compiler == "Visual Studio" and float(self.settings.compiler.version.value) < 14 and self.options.build_gmock:
+            # gmock-matchers.h(62): warning C4616: #pragma warning : warning number '5046' not a valid compile
+            tools.replace_in_file(os.path.join(self.source_subfolder, "include", "gmock", "gmock-matchers.h"), "5046", "")
         cmake.configure()
         cmake.build()
 
@@ -64,10 +67,11 @@ class GTestConan(ConanFile):
         self.copy(pattern="*.pdb", dst="bin", src=".", keep_path=False)
 
     def package_info(self):
+        suffix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
         if self.options.build_gmock:
-            self.cpp_info.libs = ['gmock_main', 'gmock', 'gtest']
+            self.cpp_info.libs = ["{}{}".format(lib, suffix) for lib in ['gmock_main', 'gmock', 'gtest']]
         else:
-            self.cpp_info.libs = ['gtest_main', 'gtest']
+            self.cpp_info.libs = ["{}{}".format(lib, suffix) for lib in ['gtest_main', 'gtest']]
 
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
