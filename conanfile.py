@@ -67,7 +67,7 @@ class GTestConan(ConanFile):
         self.copy(pattern="*.pdb", dst="bin", src=".", keep_path=False)
 
     def package_info(self):
-        suffix = "d" if self.settings.os == "Windows" and self.settings.build_type == "Debug" else ""
+        suffix = "d" if self.settings.build_type == "Debug" else ""
         if self.options.build_gmock:
             self.cpp_info.libs = ["{}{}".format(lib, suffix) for lib in ['gmock_main', 'gmock', 'gtest']]
         else:
