@@ -23,6 +23,8 @@ class GTestConan(ConanFile):
 
     def configure(self):
         if self.settings.os == "Windows":
+            if self.settings.compiler == "Visual Studio" and float(self.settings.compiler.version.value) <= 12:
+                raise Exception("Google Test {} does not support Visual Studio <= 12".format(self.version))
             self.options.remove("fPIC")
 
     def source(self):
@@ -37,9 +39,6 @@ class GTestConan(ConanFile):
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["gtest_disable_pthreads"] = True
-        if self.settings.compiler == "Visual Studio" and float(self.settings.compiler.version.value) < 14 and self.options.build_gmock:
-            # gmock-matchers.h(62): warning C4616: #pragma warning : warning number '5046' not a valid compile
-            tools.replace_in_file(os.path.join(self.source_subfolder, "googlemock", "include", "gmock", "gmock-matchers.h"), "5046", "")
         cmake.configure()
         cmake.build()
 
@@ -78,11 +77,8 @@ class GTestConan(ConanFile):
 
         if self.options.shared:
             self.cpp_info.defines.append("GTEST_LINKED_AS_SHARED_LIBRARY=1")
-            if self.settings.compiler == "Visual Studio" and float(self.settings.compiler.version.value) <= 12:
-                self.cpp_info.defines.append('_VARIADIC_MAX=10')
 
         if self.settings.compiler == "Visual Studio":
             if float(str(self.settings.compiler.version)) >= 15:
                 self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
                 self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
-
