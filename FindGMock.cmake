@@ -3,14 +3,14 @@ find_path(
   NAMES
   gmock
   PATHS
-  include)
+  ${CONAN_INCLUDE_DIRS_GTEST})
 
 find_path(
   GTEST_INCLUDE_DIR
   NAMES
   gtest
   PATHS
-  include)
+  ${CONAN_INCLUDE_DIRS_GTEST})
 
 SET(GMOCK_INCLUDE_DIRS ${GMOCK_INCLUDE_DIR} ${GTEST_INCLUDE_DIR})
 
@@ -22,8 +22,7 @@ find_library(
   libgtest
   libgtestd
   PATHS
-  lib
-  )
+  ${CONAN_LIB_DIRS_GTEST})
 
 find_library(
   GMOCK_LIBRARY
@@ -33,7 +32,7 @@ find_library(
   libgmock
   libgmockd
   PATHS
-  lib)
+  ${CONAN_LIB_DIRS_GTEST})
 
 find_library(
   GMOCK_MAIN_LIBRARIES
@@ -43,7 +42,7 @@ find_library(
   libgmock_main
   libgmock_maind
   PATHS
-  lib)
+  ${CONAN_LIB_DIRS_GTEST})
 
 SET(GMOCK_LIBRARIES ${GMOCK_LIBRARY} ${GTEST_LIBRARY})
 

@@ -11,6 +11,13 @@ if (NOT GTEST_FOUND)
     message(FATAL_ERROR "Could not find GTest")
 endif()
 
+if(WITH_GMOCK)
+    find_package(GMock REQUIRED)
+    if (NOT GMOCK_FOUND)
+        message(FATAL_ERROR "Could not find GMock")
+    endif()
+endif()
+
 add_executable(${PROJECT_NAME} test_package.cpp)
 target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)

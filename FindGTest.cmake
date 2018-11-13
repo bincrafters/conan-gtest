@@ -3,7 +3,7 @@ find_path(
   NAMES
   gtest
   PATHS
-  include)
+  ${CONAN_INCLUDE_DIRS_GTEST})
 
 find_library(
   GTEST_LIBRARIES
@@ -13,15 +13,17 @@ find_library(
   libgtest
   libgtestd
   PATHS
-  lib)
+  ${CONAN_LIB_DIRS_GTEST})
 
 find_library(
   GTEST_MAIN_LIBRARIES
   NAMES
+  gtest_main
   gtest_maind
+  libgtest_main
   libgtest_maind
   PATHS
-  lib)
+  ${CONAN_LIB_DIRS_GTEST})
 
 SET(GTEST_BOTH_LIBRARIES ${GTEST_MAIN_LIBRARIES} ${GTEST_LIBRARIES})
 
