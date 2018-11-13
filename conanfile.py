@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from conans import ConanFile, CMake, tools
 import os
+from conans import ConanFile, CMake, tools
+from conans.model.version import Version
+from conans.errors import ConanInvalidConfiguration
 
 
 class GTestConan(ConanFile):
@@ -11,26 +13,27 @@ class GTestConan(ConanFile):
     url = "http://github.com/bincrafters/conan-gtest"
     homepage = "https://github.com/google/googletest"
     author = "Bincrafters <bincrafters@gmail.com>"
-    license = "BSD 3-Clause"
+    license = "BSD-3-Clause"
+    topics = ("conan", "gtest", "testing", "google-testing", "unit-test")
     exports = ["LICENSE.md"]
     exports_sources = ["CMakeLists.txt", "FindGTest.cmake", "FindGMock.cmake"]
-    source_subfolder = "source_subfolder"
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False]}
-    default_options = ("shared=False", "build_gmock=True", "fPIC=True")
+    default_options = {"shared": False, "build_gmock": True, "fPIC": True}
+    _source_subfolder = "source_subfolder"
 
 
     def configure(self):
         if self.settings.os == "Windows":
-            if self.settings.compiler == "Visual Studio" and float(self.settings.compiler.version.value) <= 12:
-                raise Exception("Google Test {} does not support Visual Studio <= 12".format(self.version))
-            self.options.remove("fPIC")
+            if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version.value) <= "12":
+                raise ConanInvalidConfiguration("Google Test {} does not support Visual Studio <= 12".format(self.version))
+            del self.options.fPIC
 
     def source(self):
         tools.get("{0}/archive/release-{1}.tar.gz".format(self.homepage, self.version))
         extracted_dir = "googletest-release-" + self.version
-        os.rename(extracted_dir, self.source_subfolder)
+        os.rename(extracted_dir, self._source_subfolder)
 
     def build(self):
         cmake = CMake(self)
@@ -44,14 +47,14 @@ class GTestConan(ConanFile):
 
     def package(self):
         # Copy the cmake find module
-        self.copy("FindGTest.cmake", ".", ".")
-        self.copy("FindGMock.cmake", ".", ".")
+        self.copy("FindGTest.cmake", dst=".", src=".")
+        self.copy("FindGMock.cmake", dst=".", src=".")
 
         # Copy the license files
-        self.copy("LICENSE", dst="licenses", src=self.source_subfolder)
+        self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
         # Copying headers
-        gtest_include_dir = os.path.join(self.source_subfolder, "googletest", "include")
-        gmock_include_dir = os.path.join(self.source_subfolder, "googlemock", "include")
+        gtest_include_dir = os.path.join(self._source_subfolder, "googletest", "include")
+        gmock_include_dir = os.path.join(self._source_subfolder, "googlemock", "include")
 
         self.copy(pattern="*.h", dst="include", src=gtest_include_dir, keep_path=True)
         if self.options.build_gmock:
@@ -79,6 +82,6 @@ class GTestConan(ConanFile):
             self.cpp_info.defines.append("GTEST_LINKED_AS_SHARED_LIBRARY=1")
 
         if self.settings.compiler == "Visual Studio":
-            if float(str(self.settings.compiler.version)) >= 15:
+            if Version(self.settings.compiler.version.value) >= "15":
                 self.cpp_info.defines.append("GTEST_LANG_CXX11=1")
                 self.cpp_info.defines.append("GTEST_HAS_TR1_TUPLE=0")
