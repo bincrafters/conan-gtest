@@ -18,7 +18,12 @@ if(WITH_GMOCK)
     endif()
 endif()
 
-add_executable(${PROJECT_NAME} test_package.cpp)
+if(WITH_MAIN)
+    add_executable(${PROJECT_NAME} test_package.cpp)
+else()
+    add_executable(${PROJECT_NAME} main.cpp test_package.cpp)
+endif()
+
 target_link_libraries(${PROJECT_NAME} ${CONAN_LIBS})
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 11)
 if(WITH_GMOCK)
