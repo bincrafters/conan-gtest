@@ -17,30 +17,24 @@ SET(GMOCK_INCLUDE_DIRS ${GMOCK_INCLUDE_DIR} ${GTEST_INCLUDE_DIR})
 find_library(
   GTEST_LIBRARY
   NAMES
-  gtest
-  gtestd
-  libgtest
-  libgtestd
+  gtest@CUSTOM_DEBUG_POSTFIX@
+  libgtest@CUSTOM_DEBUG_POSTFIX@
   PATHS
   ${CONAN_LIB_DIRS_GTEST})
 
 find_library(
   GMOCK_LIBRARY
   NAMES
-  gmock
-  gmockd
-  libgmock
-  libgmockd
+  gmock@CUSTOM_DEBUG_POSTFIX@
+  libgmock@CUSTOM_DEBUG_POSTFIX@
   PATHS
   ${CONAN_LIB_DIRS_GTEST})
 
 find_library(
   GMOCK_MAIN_LIBRARIES
   NAMES
-  gmock_main
-  gmock_maind
-  libgmock_main
-  libgmock_maind
+  gmock_main@CUSTOM_DEBUG_POSTFIX@
+  libgmock_main@CUSTOM_DEBUG_POSTFIX@
   PATHS
   ${CONAN_LIB_DIRS_GTEST})
 

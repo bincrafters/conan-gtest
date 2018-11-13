@@ -16,13 +16,18 @@ class GTestConan(ConanFile):
     license = "BSD-3-Clause"
     topics = ("conan", "gtest", "testing", "google-testing", "unit-test")
     exports = ["LICENSE.md"]
-    exports_sources = ["CMakeLists.txt", "FindGTest.cmake", "FindGMock.cmake"]
+    exports_sources = ["CMakeLists.txt", "FindGTest.cmake.in", "FindGMock.cmake.in"]
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "build_gmock": True, "fPIC": True}
+    options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False], "build_main": [True, False], "debug_postfix": "ANY"}
+    default_options = {"shared": False, "build_gmock": True, "fPIC": True, "build_main": True, "debug_postfix": 'd'}
     _source_subfolder = "source_subfolder"
 
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+        if self.settings.build_type != "Debug":
+            del self.options.debug_postfix
 
     def configure(self):
         if self.settings.os == "Windows":
@@ -39,6 +44,9 @@ class GTestConan(ConanFile):
         cmake = CMake(self)
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
+        if self.settings.build_type == "Debug":
+            tools.replace_in_file(os.path.join(self._source_subfolder, "googletest", "cmake", "internal_utils.cmake"), '"d"', '"${CUSTOM_DEBUG_POSTFIX}"')
+            cmake.definitions["CUSTOM_DEBUG_POSTFIX"] = self.options.debug_postfix
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["gtest_disable_pthreads"] = True
@@ -46,18 +54,15 @@ class GTestConan(ConanFile):
         cmake.build()
 
     def package(self):
-        # Copy the cmake find module
-        self.copy("FindGTest.cmake", dst=".", src=".")
-        self.copy("FindGMock.cmake", dst=".", src=".")
-
-        # Copy the license files
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-        # Copying headers
-        gtest_include_dir = os.path.join(self._source_subfolder, "googletest", "include")
-        gmock_include_dir = os.path.join(self._source_subfolder, "googlemock", "include")
 
+        self.copy("FindGTest.cmake", dst=".", src=".")
+        gtest_include_dir = os.path.join(self._source_subfolder, "googletest", "include")
         self.copy(pattern="*.h", dst="include", src=gtest_include_dir, keep_path=True)
+
         if self.options.build_gmock:
+            self.copy("FindGMock.cmake", dst=".", src=".")
+            gmock_include_dir = os.path.join(self._source_subfolder, "googlemock", "include")
             self.copy(pattern="*.h", dst="include", src=gmock_include_dir, keep_path=True)
 
         # Copying static and dynamic libs
@@ -69,7 +74,7 @@ class GTestConan(ConanFile):
         self.copy(pattern="*.pdb", dst="bin", src=".", keep_path=False)
 
     def package_info(self):
-        suffix = "d" if self.settings.build_type == "Debug" else ""
+        suffix = self.options.debug_postfix if self.settings.build_type == "Debug" else ""
         if self.options.build_gmock:
             self.cpp_info.libs = ["{}{}".format(lib, suffix) for lib in ['gmock_main', 'gmock', 'gtest']]
         else:
