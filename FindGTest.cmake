@@ -9,15 +9,17 @@ find_library(
   GTEST_LIBRARIES
   NAMES
   gtest
+  gtestd
   libgtest
+  libgtestd
   PATHS
   lib)
 
 find_library(
   GTEST_MAIN_LIBRARIES
   NAMES
-  gtest_main
-  libgtest_main
+  gtest_maind
+  libgtest_maind
   PATHS
   lib)
 

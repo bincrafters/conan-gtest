@@ -18,7 +18,9 @@ find_library(
   GTEST_LIBRARY
   NAMES
   gtest
+  gtestd
   libgtest
+  libgtestd
   PATHS
   lib
   )
@@ -27,7 +29,9 @@ find_library(
   GMOCK_LIBRARY
   NAMES
   gmock
+  gmockd
   libgmock
+  libgmockd
   PATHS
   lib)
 
@@ -35,7 +39,9 @@ find_library(
   GMOCK_MAIN_LIBRARIES
   NAMES
   gmock_main
+  gmock_maind
   libgmock_main
+  libgmock_maind
   PATHS
   lib)
 
