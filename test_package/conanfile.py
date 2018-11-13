@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-from conans import ConanFile, CMake, tools, RunEnvironment
 import os
+from conans import ConanFile, CMake
 
 
 class TestPackageConan(ConanFile):
@@ -12,15 +11,11 @@ class TestPackageConan(ConanFile):
     def build(self):
         cmake = CMake(self)
         cmake.definitions['WITH_GMOCK'] = self.options['gtest'].build_gmock
+        cmake.definitions['WITH_MAIN'] = not self.options['gtest'].no_main
         cmake.configure()
         cmake.build()
 
     def test(self):
-        with tools.environment_append(RunEnvironment(self).vars):
-            bin_path = os.path.join("bin", "test_package")
-            if self.settings.os == "Windows":
-                self.run(bin_path)
-            elif self.settings.os == "Macos":
-                self.run("DYLD_LIBRARY_PATH=%s %s" % (os.environ.get('DYLD_LIBRARY_PATH', ''), bin_path))
-            else:
-                self.run("LD_LIBRARY_PATH=%s %s" % (os.environ.get('LD_LIBRARY_PATH', ''), bin_path))
+        assert os.path.isfile(os.path.join(self.deps_cpp_info["gtest"].rootpath, "licenses", "LICENSE"))
+        bin_path = os.path.join("bin", "test_package")
+        self.run(bin_path, run_environment=True)

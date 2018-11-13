@@ -1,7 +1,10 @@
+cmake_minimum_required(VERSION 2.8.11)
 project(cmake_wrapper)
 
 include("${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
 conan_basic_setup()
+
+option(GTEST_NO_MAIN "Generate google main libraries" OFF)
 
 if(MSVC)
   if(MSVC_VERSION AND MSVC_VERSION GREATER_EQUAL 1910)
@@ -10,3 +13,6 @@ if(MSVC)
 endif(MSVC)
 
 add_subdirectory("source_subfolder")
+
+configure_file("${PROJECT_SOURCE_DIR}/FindGMock.cmake.in" "${PROJECT_BINARY_DIR}/FindGMock.cmake" @ONLY)
+configure_file("${PROJECT_SOURCE_DIR}/FindGTest.cmake.in" "${PROJECT_BINARY_DIR}/FindGTest.cmake" @ONLY)
