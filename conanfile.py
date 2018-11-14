@@ -37,7 +37,6 @@ class GTestConan(ConanFile):
         if self.settings.os == "Windows":
             if self.settings.compiler == "Visual Studio" and Version(self.settings.compiler.version.value) <= "12":
                 raise ConanInvalidConfiguration("Google Test {} does not support Visual Studio <= 12".format(self.version))
-            del self.options.fPIC
 
     def source(self):
         tools.get("{0}/archive/release-{1}.tar.gz".format(self.homepage, self.version))
