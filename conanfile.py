@@ -69,8 +69,8 @@ class GTestConan(ConanFile):
             gmock_include_dir = os.path.join(self._source_subfolder, "googlemock", "include")
             self.copy(pattern="*.h", dst="include", src=gmock_include_dir, keep_path=True)
 
-        if self.settings.os in ["Linux", "Macos", "Android"]:
-            shared_ext = "dylib" if self.settings.os == "Macos" else "so"
+        if self.settings.os in ["Linux", "Android"] or tools.is_apple_os(self.settings.os):
+            shared_ext = "dylib" if tools.is_apple_os(self.settings.os) else "so"
             ext = shared_ext if self.options.shared else "a"
             self.copy("libgtest%s.%s" % (self._postfix, ext), dst="lib", src="lib")
             if not self.options.no_main:
