@@ -45,11 +45,10 @@ class GTestConan(ConanFile):
 
     def _configure_cmake(self):
         cmake = CMake(self)
+        if self.settings.build_type == "Debug":
+            cmake.definitions["CUSTOM_DEBUG_POSTFIX"] = self.options.debug_postfix
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
-        if self.settings.build_type == "Debug":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "googletest", "cmake", "internal_utils.cmake"), '"d"', '"${CUSTOM_DEBUG_POSTFIX}"')
-            cmake.definitions["CUSTOM_DEBUG_POSTFIX"] = self.options.debug_postfix
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         cmake.definitions["GTEST_NO_MAIN"] = self.options.no_main
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
