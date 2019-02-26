@@ -39,7 +39,8 @@ class GTestConan(ConanFile):
                 raise ConanInvalidConfiguration("Google Test {} does not support Visual Studio <= 12".format(self.version))
 
     def source(self):
-        tools.get("{0}/archive/release-{1}.tar.gz".format(self.homepage, self.version))
+        sha256 = "9bf1fe5182a604b4135edc1a425ae356c9ad15e9b23f9f12a02e80184c3a249c"
+        tools.get("{0}/archive/release-{1}.tar.gz".format(self.homepage, self.version), sha256=sha256)
         extracted_dir = "googletest-release-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
