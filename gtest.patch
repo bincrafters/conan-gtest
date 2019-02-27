@@ -1,0 +1,47 @@
+diff --git a/googlemock/CMakeLists.txt b/googlemock/CMakeLists.txt
+index 8a8de1f..abd27a4 100644
+--- a/googlemock/CMakeLists.txt
++++ b/googlemock/CMakeLists.txt
+@@ -127,7 +127,11 @@ endif()
+ ########################################################################
+ #
+ # Install rules
+-install_project(gmock gmock_main)
++if (GTEST_NO_MAIN)
++  install_project(gmock)
++else()
++  install_project(gmock gmock_main)
++endif()
+ 
+ ########################################################################
+ #
+diff --git a/googletest/CMakeLists.txt b/googletest/CMakeLists.txt
+index 9ee7940..7c3b700 100644
+--- a/googletest/CMakeLists.txt
++++ b/googletest/CMakeLists.txt
+@@ -148,7 +148,11 @@ target_link_libraries(gtest_main PUBLIC gtest)
+ ########################################################################
+ #
+ # Install rules
+-install_project(gtest gtest_main)
++if (GTEST_NO_MAIN OR BUILD_GMOCK)
++  install_project(gtest)
++else()
++  install_project(gtest gtest_main)
++endif()
+ 
+ ########################################################################
+ #
+diff --git a/googletest/cmake/internal_utils.cmake b/googletest/cmake/internal_utils.cmake
+index 8c1f9ba..2203d3c 100644
+--- a/googletest/cmake/internal_utils.cmake
++++ b/googletest/cmake/internal_utils.cmake
+@@ -166,7 +166,7 @@ function(cxx_library_with_type name type cxx_flags)
+   # Generate debug library name with a postfix.
+   set_target_properties(${name}
+     PROPERTIES
+-    DEBUG_POSTFIX "d")
++    DEBUG_POSTFIX "${CUSTOM_DEBUG_POSTFIX}")
+   if (BUILD_SHARED_LIBS OR type STREQUAL "SHARED")
+     set_target_properties(${name}
+       PROPERTIES

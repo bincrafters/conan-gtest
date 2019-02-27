@@ -16,7 +16,7 @@ class GTestConan(ConanFile):
     license = "BSD-3-Clause"
     topics = ("conan", "gtest", "testing", "google-testing", "unit-test")
     exports = ["LICENSE.md"]
-    exports_sources = ["CMakeLists.txt", "FindGTest.cmake.in", "FindGMock.cmake.in"]
+    exports_sources = ["CMakeLists.txt", "FindGTest.cmake.in", "FindGMock.cmake.in", "gtest.patch"]
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False], "no_main": [True, False], "debug_postfix": "ANY"}
@@ -39,75 +39,37 @@ class GTestConan(ConanFile):
                 raise ConanInvalidConfiguration("Google Test {} does not support Visual Studio <= 12".format(self.version))
 
     def source(self):
-        tools.get("{0}/archive/release-{1}.tar.gz".format(self.homepage, self.version))
+        sha256 = "9bf1fe5182a604b4135edc1a425ae356c9ad15e9b23f9f12a02e80184c3a249c"
+        tools.get("{0}/archive/release-{1}.tar.gz".format(self.homepage, self.version), sha256=sha256)
         extracted_dir = "googletest-release-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
-    def build(self):
+    def _configure_cmake(self):
         cmake = CMake(self)
+        if self.settings.build_type == "Debug":
+            cmake.definitions["CUSTOM_DEBUG_POSTFIX"] = self.options.debug_postfix
         if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
             cmake.definitions["gtest_force_shared_crt"] = True
-        if self.settings.build_type == "Debug":
-            tools.replace_in_file(os.path.join(self._source_subfolder, "googletest", "cmake", "internal_utils.cmake"), '"d"', '"${CUSTOM_DEBUG_POSTFIX}"')
-            cmake.definitions["CUSTOM_DEBUG_POSTFIX"] = self.options.debug_postfix
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         cmake.definitions["GTEST_NO_MAIN"] = self.options.no_main
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["gtest_disable_pthreads"] = True
         cmake.configure()
+        return cmake
+
+    def build(self):
+        tools.patch(base_path=self._source_subfolder, patch_file="gtest.patch")
+        cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
         self.copy("LICENSE", dst="licenses", src=self._source_subfolder)
-
-        self.copy("FindGTest.cmake", dst=".", src=".")
-        gtest_include_dir = os.path.join(self._source_subfolder, "googletest", "include")
-        self.copy(pattern="*.h", dst="include", src=gtest_include_dir, keep_path=True)
-
-        if self.options.build_gmock:
-            self.copy("FindGMock.cmake", dst=".", src=".")
-            gmock_include_dir = os.path.join(self._source_subfolder, "googlemock", "include")
-            self.copy(pattern="*.h", dst="include", src=gmock_include_dir, keep_path=True)
-
-        if self.settings.os in ["Linux", "Android"] or tools.is_apple_os(self.settings.os):
-            shared_ext = "dylib" if tools.is_apple_os(self.settings.os) else "so"
-            ext = shared_ext if self.options.shared else "a"
-            self.copy("libgtest%s.%s" % (self._postfix, ext), dst="lib", src="lib")
-            if not self.options.no_main:
-                self.copy("libgtest_main%s.%s" % (self._postfix, ext), dst="lib", src="lib")
-            if self.options.build_gmock:
-                self.copy("libgmock%s.%s" % (self._postfix, ext), dst="lib", src="lib")
-                if not self.options.no_main:
-                    self.copy("libgmock_main%s.%s" % (self._postfix, ext), dst="lib", src="lib")
-        elif self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
-            self.copy(pattern="*.pdb", dst="bin", src=".", keep_path=False)
-            for ext, folder in [('lib', 'lib'), ('dll', 'bin')]:
-                self.copy("gtest%s.%s" % (self._postfix, ext), dst=folder, src=folder)
-                if not self.options.no_main:
-                    self.copy("gtest_main%s.%s" % (self._postfix, ext), dst=folder, src=folder)
-                if self.options.build_gmock:
-                    self.copy("gmock%s.%s" % (self._postfix, ext), dst=folder, src=folder)
-                    if not self.options.no_main:
-                        self.copy("gmock_main%s.%s" % (self._postfix, ext), dst=folder, src=folder)
-        elif self.settings.os == "Windows" and self.settings.compiler == "gcc":
-            static_ext = "dll.a" if self.options.shared else 'a'
-            for ext, folder in [(static_ext, 'lib'), ('dll', 'bin')]:
-                self.copy("libgtest%s.%s" % (self._postfix, ext), dst=folder, src=folder)
-                if not self.options.no_main:
-                    self.copy("libgtest_main%s.%s" % (self._postfix, ext), dst=folder, src=folder)
-                if self.options.build_gmock:
-                    self.copy("libgmock%s.%s" % (self._postfix, ext), dst=folder, src=folder)
-                    if not self.options.no_main:
-                        self.copy("libgmock_main%s.%s" % (self._postfix, ext), dst=folder, src=folder)
+        self.copy(pattern="*.pdb", dst="bin", src=".", keep_path=False)
+        cmake = self._configure_cmake()
+        cmake.install()
 
     def package_info(self):
-        if self.options.build_gmock:
-            gmock_libs = ['gmock', 'gtest'] if self.options.no_main else ['gmock_main', 'gmock', 'gtest']
-            self.cpp_info.libs = ["{}{}".format(lib, self._postfix) for lib in gmock_libs]
-        else:
-            gtest_libs = ['gtest'] if self.options.no_main else ['gtest_main' , 'gtest']
-            self.cpp_info.libs = ["{}{}".format(lib, self._postfix) for lib in gtest_libs]
-
+        self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
 
