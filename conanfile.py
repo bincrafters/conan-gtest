@@ -68,8 +68,17 @@ class GTestConan(ConanFile):
         cmake = self._configure_cmake()
         cmake.install()
 
+    def package_id(self):
+        del self.info.options.no_main
+
     def package_info(self):
-        self.cpp_info.libs = tools.collect_libs(self)
+        if self.options.build_gmock:
+            gmock_libs = ['gmock', 'gtest'] if self.options.no_main else ['gmock_main', 'gmock', 'gtest']
+            self.cpp_info.libs = ["{}{}".format(lib, self._postfix) for lib in gmock_libs]
+        else:
+            gtest_libs = ['gtest'] if self.options.no_main else ['gtest_main' , 'gtest']
+            self.cpp_info.libs = ["{}{}".format(lib, self._postfix) for lib in gtest_libs]
+
         if self.settings.os == "Linux":
             self.cpp_info.libs.append("pthread")
 
