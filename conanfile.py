@@ -48,8 +48,8 @@ class GTestConan(ConanFile):
         cmake = CMake(self)
         if self.settings.build_type == "Debug":
             cmake.definitions["CUSTOM_DEBUG_POSTFIX"] = self.options.debug_postfix
-        if self.settings.compiler == "Visual Studio" and "MD" in str(self.settings.compiler.runtime):
-            cmake.definitions["gtest_force_shared_crt"] = True
+        if self.settings.os == "Windows" and self.settings.get_safe("compiler.runtime"):
+            cmake.definitions["gtest_force_shared_crt"] = "MD" in str(self.settings.compiler.runtime)           
         cmake.definitions["BUILD_GMOCK"] = self.options.build_gmock
         cmake.definitions["GTEST_NO_MAIN"] = self.options.no_main
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
