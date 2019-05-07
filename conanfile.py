@@ -19,8 +19,8 @@ class GTestConan(ConanFile):
     exports_sources = ["CMakeLists.txt", "FindGTest.cmake.in", "FindGMock.cmake.in", "gtest.patch"]
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False], "no_main": [True, False], "debug_postfix": "ANY"}
-    default_options = {"shared": False, "build_gmock": True, "fPIC": True, "no_main": False, "debug_postfix": 'd'}
+    options = {"shared": [True, False], "build_gmock": [True, False], "fPIC": [True, False], "no_main": [True, False], "debug_postfix": "ANY", "hide_symbols": [True, False]}
+    default_options = {"shared": False, "build_gmock": True, "fPIC": True, "no_main": False, "debug_postfix": 'd', "hide_symbols": False}
     _source_subfolder = "source_subfolder"
 
     @property
@@ -54,6 +54,7 @@ class GTestConan(ConanFile):
         cmake.definitions["GTEST_NO_MAIN"] = self.options.no_main
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["gtest_disable_pthreads"] = True
+        cmake.definitions["gtest_hide_internal_symbols"] = self.options.hide_symbols
         cmake.configure()
         return cmake
 
